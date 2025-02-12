@@ -1,38 +1,27 @@
-import SwiftUI
+import Foundation
 
-struct AddShiftView: View {
-    @State private var product: String = ""
-    @State private var collectedBoxes: String = ""
-    @State private var workTime: String = ""
-
-    var body: some View {
-        VStack {
-            TextField("Продукт", text: $product)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            TextField("Кількість боксів", text: $collectedBoxes)
-                .keyboardType(.numberPad)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            TextField("Час роботи (год:хв)", text: $workTime)
-                .keyboardType(.numberPad)
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding()
-            
-            Button(action: saveShift) {
-                Text("Зберегти зміну")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.green)
-                    .foregroundColor(.white)
-                    .cornerRadius(10)
-                    .padding(.horizontal, 20)
-            }
-        }
-        .navigationTitle("Додати зміну")
+class KPICalculator {
+    static func calculateKPI(product: String, collectedBoxes: Int, workTime: String) -> Double {
+        let norms: [String: (palletsPerHour: Double, boxesPerPallet: Int)] = [
+            "JS": (9, 55),
+            "MS": (5, 45),
+            "Waitrose": (9, 55),
+            "Ocado": (5, 45),
+            "Маркет": (11, 65)
+        ]
+        
+        guard let norm = norms[product], let workTimeMinutes = timeStringToMinutes(workTime) else { return 0 }
+        
+        let workTimeHours = Double(workTimeMinutes) / 60.0
+        let actualPalletsPerHour = Double(collectedBoxes) / Double(norm.boxesPerPallet) / workTimeHours
+        let kpi = (actualPalletsPerHour / norm.palletsPerHour) * 100
+        
+        return round(kpi * 10) / 10  // Округлення до 1 знака
     }
-    
-    func saveShift() {
-        // Тут буде логіка збереження даних
+
+    static func timeStringToMinutes(_ time: String) -> Int? {
+        let components = time.split(separator: ":").compactMap { Int($0) }
+        guard components.count == 2 else { return nil }
+        return components[0] * 60 + components[1]
     }
 }
