@@ -1,8 +1,10 @@
 import Foundation
 
-struct KPI: Identifiable {
-    var id = UUID()
-    var date: Date
-    var shift: String
-    var kpiPercentage: Double
+struct KPIModel: Identifiable {
+    let id = UUID()
+    let date: String
+    let product: String
+    let collectedBoxes: Int
+    let workTime: String
+    let kpi: Double
 }
